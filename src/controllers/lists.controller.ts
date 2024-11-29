@@ -20,10 +20,20 @@ export async function addList(
     reply: FastifyReply
 ) {
     const list = request.body as ITodoList
-    const result = await this.level.listsdb.put(
-        list.id.toString(), JSON.stringify(list)
-    )
-    reply.send( result )
+    try {
+        const existingList = await this.level.listsdb.get(list.id.toString()).catch(() => null);
+
+        if (existingList) {
+            reply.status(409).send({ message: `A list with id ${list.id} already exists` });
+            return;
+        }
+
+        await this.level.listsdb.put(list.id.toString(), JSON.stringify(list));
+
+        reply.status(201).send({ message: 'List added successfully', list });
+    } catch (error) {
+        reply.status(500).send({ message: 'An error occurred while adding the list', error });
+    }
 }
 
 export async function updateList(
@@ -55,22 +65,32 @@ export async function addItemToList(
     const { id } = request.params as { id: string };
     const newItem = request.body as { id: string; description: string; status: TodoStatus };
 
-    const existingValue = await this.level.listsdb.get(id).catch(() => null);
+    try {
+        const existingValue = await this.level.listsdb.get(id).catch(() => null);
 
-    if (!existingValue) {
-        reply.status(404).send({ message: `List with id ${id} not found` });
-        return;
+        if (!existingValue) {
+            reply.status(404).send({ message: `List with id ${id} not found` });
+            return;
+        }
+
+        const existingList = JSON.parse(existingValue) as ITodoList;
+
+        if (existingList.items && existingList.items.some(item => item.id === newItem.id)) {
+            reply.status(409).send({ message: `An item with id ${newItem.id} already exists in list ${id}` });
+            return;
+        }
+
+        const updatedItems = existingList.items ? [...existingList.items, newItem] : [newItem];
+        const updatedList = { ...existingList, items: updatedItems };
+
+        await this.level.listsdb.put(id, JSON.stringify(updatedList));
+
+        reply.status(201).send(updatedList);
+    } catch (error) {
+        reply.status(500).send({ message: 'An error occurred while adding the item', error });
     }
-
-    const existingList = JSON.parse(existingValue) as ITodoList;
-    const updatedItems = existingList.items ? [...existingList.items, newItem] : [newItem];
-
-    const updatedList = { ...existingList, items: updatedItems };
-
-    await this.level.listsdb.put(id, JSON.stringify(updatedList));
-
-    reply.status(201).send(updatedList);
 }
+
 
 export async function removeItemFromList(
     request: FastifyRequest, 
