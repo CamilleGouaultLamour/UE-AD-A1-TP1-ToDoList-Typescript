@@ -1,4 +1,4 @@
-import { ListsApi } from 'todo-list-client';
+import { ListsApi } from '@camillegl/todo-list-client';
 import { v4 as uuidv4 } from 'uuid';
 import { TodoListStatus } from "./api-types";
 

@@ -1,5 +1,5 @@
 {
-  "name": "todo-list-client",
+  "name": "@camillegl/todo-list-client",
   "version": "1.0.0",
   "description": "OpenAPI client for todo-list-client",
   "author": "OpenAPI-Generator Contributors",

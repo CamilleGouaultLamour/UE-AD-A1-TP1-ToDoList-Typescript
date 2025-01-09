@@ -70,26 +70,26 @@ export default function App() {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Header style={{ display: 'flex', alignItems: 'center', color: 'white' }}>
-        TODO LISTS
+          TODO LISTS
       </Header>
       <Layout>
         <Sider width={200} style={{ background: 'black' }}>
           <Menu
             theme="dark"
             mode="inline"
-            items={[{ key: 'add', label: 'Add list', icon: <PlusOutlined /> }, ...items]}
+            items={[{key: 'add', label: 'Add list', icon: <PlusOutlined />}, ...items]}
             onClick={(e) => handleItemClick(e.key)}
           />
         </Sider>
         <Content
           style={{
-            padding: 24,
-            margin: 0,
-            minHeight: 280,
-          }}
+          padding: 24,
+          margin: 0,
+          minHeight: 280,
+          }}    
         >
           {showListForm && <ListForm onListAdded={handleListAdded} />}
-          {selectedList && (
+          {selectedList && 
             <div>
               <Button onClick={() => setShowTodoForm(true)}>Add Todo</Button>
               <List
@@ -97,11 +97,11 @@ export default function App() {
                 renderItem={(item) => <List.Item>{item}</List.Item>}
               />
             </div>
-          )}
-          {!selectedList && !showListForm && <div>Select a list</div>}
+          }
+          {!selectedList && !showListForm && <div>Select a list</div>}    
           {showTodoForm && <TodoForm onTodoAdded={handleTodoAdded} />}
         </Content>
       </Layout>
     </Layout>
-  );
+  )
 }
